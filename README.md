@@ -30,6 +30,37 @@ A full-stack application built with Angular 12+ and Node.js/TypeScript with Mong
 - **Async Processing**: Configurable API delays to showcase async handling
 - **Responsive UI**: Modern, clean design with SCSS
 
+## Screenshots
+
+All screenshots should be placed in the `screenshots/` folder and referenced below:
+
+### Login Page
+![Login Page](screenshots/login.png)
+*Secure authentication with User ID, Password, and Role selection*
+
+### User Dashboard
+![User Dashboard](screenshots/dashboard.png)
+*View user profile and personal records with real-time filtering*
+
+### User Tasks Management
+![User Tasks](screenshots/user-tasks.png)
+*Users can view assigned tasks and update their status*
+
+### Admin Panel - User Management
+![Admin Panel](screenshots/admin.png)
+*Complete user management system with CRUD operations*
+
+### Admin Panel - Task Management
+![Admin Tasks](screenshots/admin-tasks.png)
+*Admins can create, assign, and manage tasks for users*
+
+### Modern Dark Theme
+The application features a professional **dark theme** with:
+- Cyan/teal gradient accents (`#06b6d4` to `#0ea5e9`)
+- Glassmorphism effects on cards and modals
+- Smooth hover animations and transitions
+- Responsive design that works on all devices
+
 ## Tech Stack
 
 ### Backend
@@ -55,12 +86,24 @@ ang_assignment/
 │   ├── src/
 │   │   ├── config/          # Database configuration
 │   │   ├── controllers/     # Request handlers
+│   │   │   ├── authController.ts
+│   │   │   ├── userController.ts
+│   │   │   ├── recordController.ts
+│   │   │   └── taskController.ts       # Task management logic
 │   │   ├── middleware/      # Auth middleware
 │   │   ├── models/          # Mongoose models
+│   │   │   ├── User.ts
+│   │   │   ├── Record.ts
+│   │   │   └── Task.ts                 # Task schema
 │   │   ├── routes/          # API routes
+│   │   │   ├── authRoutes.ts
+│   │   │   ├── userRoutes.ts
+│   │   │   ├── recordRoutes.ts
+│   │   │   └── taskRoutes.ts           # Task endpoints
 │   │   ├── utils/           # Utility functions
 │   │   ├── server.ts        # Express server
-│   │   └── seed.ts          # Database seeding
+│   │   └── seed.ts          # Database seeding with sample tasks
+│   ├── dist/                # Compiled JavaScript
 │   ├── package.json
 │   └── tsconfig.json
 │
@@ -70,18 +113,33 @@ ang_assignment/
     │   │   ├── core/
     │   │   │   ├── guards/      # Auth guard
     │   │   │   ├── interceptors/ # HTTP interceptor
-    │   │   │   └── services/    # Core services
+    │   │   │   └── services/
+    │   │   │       ├── auth.service.ts
+    │   │   │       ├── user.service.ts
+    │   │   │       ├── record.service.ts
+    │   │   │       └── task.service.ts # Task API calls
     │   │   ├── features/
-    │   │   │   ├── login/       # Login component
-    │   │   │   ├── dashboard/   # Dashboard component
-    │   │   │   └── admin/       # Admin component
+    │   │   │   ├── login/           # Login component
+    │   │   │   ├── dashboard/       # Dashboard component
+    │   │   │   ├── admin/           # User management
+    │   │   │   ├── user-tasks/      # User task view
+    │   │   │   └── admin-tasks/     # Admin task management
     │   │   ├── shared/
-    │   │   │   └── models/      # TypeScript interfaces
+    │   │   │   └── models/
+    │   │   │       ├── user.model.ts
+    │   │   │       ├── record.model.ts
+    │   │   │       └── task.model.ts
     │   │   ├── app-routing.module.ts
     │   │   └── app.module.ts
     │   └── environments/
+    ├── dist/                # Build output
     ├── package.json
-    └── angular.json
+    ├── angular.json
+    └── proxy.conf.json     # API proxy configuration
+
+├── screenshots/            # Application screenshots
+├── README.md              # Main project documentation
+└── setup.sh               # Setup script
 ```
 
 ## Setup Instructions
@@ -179,6 +237,13 @@ After seeding the database, use these credentials:
 ### Records
 - `GET /api/records?delay=<ms>` - Get records (filtered by role)
 
+### Tasks
+- `GET /api/tasks?delay=<ms>` - Get tasks (admins see all, users see their assigned tasks)
+- `POST /api/tasks` - Create new task (Admin only)
+- `PATCH /api/tasks/:taskId/status` - Update task status (Users can update their own tasks)
+- `PATCH /api/tasks/:taskId` - Edit task details (Admin only)
+- `DELETE /api/tasks/:taskId` - Delete task (Admin only)
+
 ## Features Demonstration
 
 ### 1. Role-Based Access Control
@@ -197,11 +262,26 @@ After seeding the database, use these credentials:
 - Delete users from the system
 - All operations reflect immediately in the UI
 
-### 4. Clean Architecture
+### 4. Task Management System
+#### For Users:
+- View all tasks assigned to them
+- Update task status (Not Started → In Progress → Completed → On Hold)
+- Monitor task priorities and due dates
+- Real-time task list updates
+
+#### For Admins:
+- Create new tasks and assign to specific users
+- Edit task details (title, description, priority, assignee, due date)
+- Delete tasks from the system
+- View all tasks across all users
+- Monitor task progress and completion
+
+### 5. Clean Architecture
 - Services are injected and reusable
 - Guards protect routes automatically
 - Interceptors handle authentication seamlessly
 - Modular component structure
+- Separation of concerns across layers
 
 ## Development Notes
 

@@ -1,0 +1,214 @@
+<div class="admin-tasks-container">
+  <div class="navbar">
+    <h2>Task Management</h2>
+  </div>
+
+  <div class="admin-content">
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <!-- Header with Create Button -->
+    <div class="admin-header">
+      <h3>All Tasks</h3>
+      <div class="header-actions">
+        <div class="delay-control">
+          <label for="delay">Delay (ms):</label>
+          <input 
+            id="delay"
+            type="number" 
+            [(ngModel)]="delayMs" 
+            (change)="loadTasks()"
+            min="0"
+            max="5000"
+          />
+        </div>
+        <button class="btn-primary" (click)="openCreateModal()">+ Create Task</button>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading tasks...</p>
+    </div>
+
+    <!-- Tasks Table -->
+    <div *ngIf="!loading" class="table-container">
+      <table *ngIf="tasks.length > 0" class="tasks-table">
+        <thead>
+          <tr>
+            <th>Task ID</th>
+            <th>Title</th>
+            <th>Assigned To</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasks">
+            <td><code>{{ task.taskId }}</code></td>
+            <td><strong>{{ task.title }}</strong></td>
+            <td>{{ getUserName(task.assignedTo) }}</td>
+            <td>
+              <span [class]="'priority-badge ' + getPriorityColor(task.priority)" [attr.data-priority]="task.priority">
+                {{ task.priority }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'status-badge ' + getStatusColor(task.status)" [attr.data-status]="task.status">
+                {{ task.status }}
+              </span>
+            </td>
+            <td>{{ formatDate(task.dueDate) }}</td>
+            <td class="actions-cell">
+              <button class="btn-edit" (click)="openEditModal(task)">Edit</button>
+              <button class="btn-delete" (click)="deleteTask(task)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="tasks.length === 0" class="no-tasks">
+        <p>No tasks created yet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div *ngIf="showCreateModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Create New Task</h3>
+
+      <div class="form-group">
+        <label for="taskId">Task ID:</label>
+        <input 
+          id="taskId"
+          type="text" 
+          [(ngModel)]="formData.taskId"
+          placeholder="e.g., TASK001"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="title">Title:</label>
+        <input 
+          id="title"
+          type="text" 
+          [(ngModel)]="formData.title"
+          placeholder="Task title"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea 
+          id="description"
+          [(ngModel)]="formData.description"
+          placeholder="Task description"
+          rows="4"
+          class="form-control"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="assignedTo">Assign To:</label>
+        <select id="assignedTo" [(ngModel)]="formData.assignedTo" class="form-control">
+          <option value="">-- Select User --</option>
+          <option *ngFor="let user of users" [value]="user.userId">
+            {{ user.name }} ({{ user.role }})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="priority">Priority:</label>
+        <select id="priority" [(ngModel)]="formData.priority" class="form-control">
+          <option *ngFor="let option of priorityOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dueDate">Due Date:</label>
+        <input 
+          id="dueDate"
+          type="date" 
+          [(ngModel)]="formData.dueDate"
+          class="form-control"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeCreateModal()">Cancel</button>
+        <button class="btn-save" (click)="createTask()">Create Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Edit Task</h3>
+
+      <div class="form-group">
+        <label for="titleEdit">Title:</label>
+        <input 
+          id="titleEdit"
+          type="text" 
+          [(ngModel)]="formData.title"
+          class="form-control"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="descriptionEdit">Description:</label>
+        <textarea 
+          id="descriptionEdit"
+          [(ngModel)]="formData.description"
+          rows="4"
+          class="form-control"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="assignedToEdit">Assign To:</label>
+        <select id="assignedToEdit" [(ngModel)]="formData.assignedTo" class="form-control">
+          <option *ngFor="let user of users" [value]="user.userId">
+            {{ user.name }} ({{ user.role }})
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="priorityEdit">Priority:</label>
+        <select id="priorityEdit" [(ngModel)]="formData.priority" class="form-control">
+          <option *ngFor="let option of priorityOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="dueDateEdit">Due Date:</label>
+        <input 
+          id="dueDateEdit"
+          type="date" 
+          [(ngModel)]="formData.dueDate"
+          class="form-control"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeEditModal()">Cancel</button>
+        <button class="btn-save" (click)="updateTask()">Update Task</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,117 @@
+<div class="dashboard-container">
+  <nav class="navbar">
+    <div class="nav-brand">
+      <h2>User Management System</h2>
+    </div>
+    <div class="nav-actions">
+      <button (click)="navigateToTasks()" class="btn-secondary">
+        📋 My Tasks
+      </button>
+      <button *ngIf="isAdmin" (click)="navigateToAdminTasks()" class="btn-secondary">
+        ✏️ Manage Tasks
+      </button>
+      <button *ngIf="isAdmin" (click)="navigateToAdmin()" class="btn-secondary">
+        Manage Users
+      </button>
+      <button (click)="logout()" class="btn-logout">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-content">
+    <div class="user-info-card">
+      <h3>Welcome, {{ currentUser?.name }}!</h3>
+      <div class="user-details">
+        <div class="detail-item">
+          <span class="label">User ID:</span>
+          <span class="value">{{ currentUser?.userId }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Email:</span>
+          <span class="value">{{ currentUser?.email }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Role:</span>
+          <span class="value" [class.admin-badge]="isAdmin">{{ currentUser?.role }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Department:</span>
+          <span class="value">{{ currentUser?.department }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="records-section">
+      <div class="section-header">
+        <h3>Your Records</h3>
+        <div class="delay-control">
+          <label for="delay">API Delay (ms):</label>
+          <input 
+            id="delay" 
+            type="number" 
+            [(ngModel)]="delayMs" 
+            min="0" 
+            placeholder="0">
+          <button (click)="applyDelay()" [disabled]="loading" class="btn-apply">
+            Reload
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading records with {{ delayMs }}ms delay...</p>
+      </div>
+
+      <div *ngIf="!loading && records.length === 0" class="no-records">
+        <p>No records found</p>
+      </div>
+
+      <div *ngIf="!loading && records.length > 0" class="table-container">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Access Level</th>
+              <th>Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of records">
+              <td>{{ record.title }}</td>
+              <td>{{ record.description }}</td>
+              <td>
+                <span class="status-badge" [attr.data-status]="record.status">
+                  {{ record.status }}
+                </span>
+              </td>
+              <td>
+                <span class="priority-badge" [attr.data-priority]="record.priority">
+                  {{ record.priority }}
+                </span>
+              </td>
+              <td>
+                <span class="access-badge" [attr.data-access]="record.accessLevel">
+                  {{ record.accessLevel }}
+                </span>
+              </td>
+              <td>{{ record.createdAt | date:'short' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading" class="records-info">
+        <p>Showing {{ records.length }} record(s)</p>
+        <p *ngIf="isAdmin" class="admin-note">
+          As an Admin, you can see all records
+        </p>
+        <p *ngIf="!isAdmin" class="user-note">
+          You can see your records and public records
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

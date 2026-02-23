@@ -1,0 +1,104 @@
+<div class="tasks-container">
+  <div class="navbar">
+    <h2>My Tasks</h2>
+  </div>
+
+  <div class="tasks-content">
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your tasks...</p>
+    </div>
+
+    <!-- Tasks List -->
+    <div *ngIf="!loading && tasks.length > 0" class="tasks-section">
+      <div class="section-header">
+        <h3>Your Assigned Tasks</h3>
+        <div class="delay-control">
+          <label for="delay">Delay (ms):</label>
+          <input 
+            id="delay"
+            type="number" 
+            [(ngModel)]="delayMs" 
+            (change)="loadTasks()"
+            min="0"
+            max="5000"
+          />
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="tasks-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Due Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let task of tasks">
+              <td>
+                <strong>{{ task.title }}</strong>
+              </td>
+              <td>{{ task.description }}</td>
+              <td>
+                <span [class]="'priority-badge ' + getPriorityColor(task.priority)" [attr.data-priority]="task.priority">
+                  {{ task.priority }}
+                </span>
+              </td>
+              <td>
+                <span [class]="'status-badge ' + getStatusColor(task.status)" [attr.data-status]="task.status">
+                  {{ task.status }}
+                </span>
+              </td>
+              <td>{{ formatDate(task.dueDate) }}</td>
+              <td>
+                <button class="btn-edit" (click)="openStatusModal(task)">Update Status</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- No Tasks Message -->
+    <div *ngIf="!loading && tasks.length === 0" class="no-tasks">
+      <p>No tasks assigned to you yet</p>
+    </div>
+  </div>
+
+  <!-- Status Update Modal -->
+  <div *ngIf="showStatusModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Update Task Status</h3>
+      
+      <div *ngIf="selectedTask" class="task-details">
+        <p><strong>Task:</strong> {{ selectedTask?.title }}</p>
+        <p><strong>Current Status:</strong> {{ selectedTask?.status }}</p>
+      </div>
+
+      <div class="form-group">
+        <label for="status">New Status:</label>
+        <select id="status" [(ngModel)]="newStatus" class="form-control">
+          <option *ngFor="let option of statusOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeStatusModal()">Cancel</button>
+        <button class="btn-save" (click)="updateStatus()">Update Status</button>
+      </div>
+    </div>
+  </div>
+</div>
